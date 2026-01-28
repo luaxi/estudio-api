@@ -3,6 +3,8 @@ package com.example.estudio_api.sala;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.estudio_api.equipamento.EquipamentoService;
+import com.example.estudio_api.equipamento.dto.EquipamentoResponseDTO;
 import com.example.estudio_api.sala.dto.SalaRequestDTO;
 import com.example.estudio_api.sala.dto.SalaResponseDTO;
 
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 public class SalaController {
 
     private final SalaService service;
+    private final EquipamentoService equipamentoService;
 
     @PostMapping("/")
     public ResponseEntity<SalaResponseDTO> criar(@Valid @RequestBody SalaRequestDTO dto) {
@@ -62,6 +65,15 @@ public class SalaController {
         service.deletar(id);
         return ResponseEntity.noContent().build();
     }
-    
+
+    @GetMapping("/{id}/equipamentos")
+    public ResponseEntity<List<EquipamentoResponseDTO>> listarEquipamentos(@PathVariable Long id) {
+        List<EquipamentoResponseDTO> equipamentos = equipamentoService.listarPorSala(id)
+            .stream()
+            .map(e -> new EquipamentoResponseDTO(e))
+            .toList();
+
+        return ResponseEntity.ok(equipamentos);
+    }
 
 }
