@@ -50,5 +50,9 @@ public class SalaService {
 
         repository.deleteById(id);
     }
+
+    public boolean existeSala(Long id){
+        return repository.existsById(id);
+    }
     
 }

@@ -35,6 +35,9 @@ public class EquipamentoService {
     }
 
     public List<Equipamento> listarPorSala(Long salaId){
+        if(!salaService.existeSala(salaId)){
+            throw new NotFoundException("Sala não encontrada!");
+        }
         return repository.findBySalaId(salaId);
     }
 
