@@ -1,12 +1,15 @@
 package com.example.estudio_api.equipamento;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
 import com.example.estudio_api.equipamento.dto.EquipamentoRequestDTO;
+import com.example.estudio_api.equipamento.enums.TipoEquipamento;
 import com.example.estudio_api.sala.Sala;
 import com.example.estudio_api.sala.SalaRepository;
+import com.example.estudio_api.shared.errors.CampoInvalidoException;
 import com.example.estudio_api.shared.errors.NotFoundException;
 
 import lombok.RequiredArgsConstructor;
@@ -66,6 +69,48 @@ public class EquipamentoService {
         equipamento.setNome(dto.nome());
         equipamento.setTipo(dto.tipo());
         equipamento.setSala(sala);
+
+        return repository.save(equipamento);
+    }
+    
+    public Equipamento atualizarParcial(Long id, Map<String, Object> updates){
+        
+        Equipamento equipamento = repository.findById(id)
+            .orElseThrow(() -> new NotFoundException("Equipamento não encontrado!"));
+
+        // Itera sobre os campos enviados no map
+        updates.forEach((campo, valor) -> {
+            switch(campo) {
+                case "nome" -> {
+                    if(valor != null && !valor.toString().isBlank()) {
+                        equipamento.setNome(valor.toString());
+                    }
+                }
+                case "tipo" -> {
+                    if(valor != null && !valor.toString().isBlank()) {
+                        try {
+                            TipoEquipamento tipo = TipoEquipamento.valueOf(valor.toString().toUpperCase());
+                            equipamento.setTipo(tipo);
+                        } catch (IllegalArgumentException e) {
+                            throw new CampoInvalidoException("Tipo inválido: " + valor);
+                        }
+                    }
+                }
+                case "salaId" -> {
+                    if(valor != null) {
+                        try {
+                            Long salaId = Long.parseLong(valor.toString());
+                            Sala sala = salaRepository.findById(salaId)
+                                .orElseThrow(() -> new NotFoundException("Sala não encontrada!"));
+                            equipamento.setSala(sala);
+                        } catch (NumberFormatException e) {
+                            throw new CampoInvalidoException("Valor inválido para salaId: " + valor);
+                        }
+                    }
+                }
+                default -> throw new CampoInvalidoException("Campo inválido: " + campo);
+            }
+        });
 
         return repository.save(equipamento);
     }

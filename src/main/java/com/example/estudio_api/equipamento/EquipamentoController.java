@@ -1,11 +1,13 @@
 package com.example.estudio_api.equipamento;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -53,6 +55,12 @@ public class EquipamentoController {
     @PutMapping("/{id}")
     public ResponseEntity<EquipamentoResponseDTO> atualizar(@PathVariable Long id, @RequestBody EquipamentoRequestDTO dto) {
         Equipamento equipamento = service.atualizar(id, dto);
+        return ResponseEntity.ok(new EquipamentoResponseDTO(equipamento));
+    }
+    
+    @PatchMapping("/{id}")
+    public ResponseEntity<EquipamentoResponseDTO> atualizarParcial(@PathVariable Long id, @RequestBody Map<String, Object> updates) {
+        Equipamento equipamento = service.atualizarParcial(id, updates);
         return ResponseEntity.ok(new EquipamentoResponseDTO(equipamento));
     }
     
