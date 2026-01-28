@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.example.estudio_api.cliente.dto.ClienteRequestDTO;
 import com.example.estudio_api.cliente.dto.ClienteResponseDTO;
+import com.example.estudio_api.reserva.ReservaService;
+import com.example.estudio_api.reserva.dto.ReservaResponseDTO;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,12 +21,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+
 @RestController
 @RequestMapping("/cliente")
 @RequiredArgsConstructor
 public class ClienteController {
 
     private final ClienteService service;
+    private final ReservaService reservaService;
 
     @PostMapping("/")
     public ResponseEntity<ClienteResponseDTO> criar(@Valid @RequestBody ClienteRequestDTO dto) {
@@ -59,6 +63,39 @@ public class ClienteController {
     public ResponseEntity<Void> deletar(@PathVariable Long id){
         service.deletar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/reservas")
+    public ResponseEntity<List<ReservaResponseDTO>> listarReservasPorCliente(@PathVariable Long id) {
+
+        List<ReservaResponseDTO> lista = reservaService.listarPorCliente(id)
+            .stream()
+            .map(reserva -> new ReservaResponseDTO(reserva))
+            .toList();
+
+        return ResponseEntity.ok(lista);
+    }
+
+    @GetMapping("/{id}/reservas/ativas")
+    public ResponseEntity<List<ReservaResponseDTO>> listarReservasAtivasPorCliente(@PathVariable Long id) {
+
+        List<ReservaResponseDTO> lista = reservaService.listarAtivasPorCliente(id)
+            .stream()
+            .map(reserva -> new ReservaResponseDTO(reserva))
+            .toList();
+
+        return ResponseEntity.ok(lista);
+    }
+    
+    @GetMapping("/{id}/reservas/passadas")
+    public ResponseEntity<List<ReservaResponseDTO>> listarReservasPassadasPorCliente(@PathVariable Long id) {
+
+        List<ReservaResponseDTO> lista = reservaService.listarPassadasPorCliente(id)
+            .stream()
+            .map(reserva -> new ReservaResponseDTO(reserva))
+            .toList();
+
+        return ResponseEntity.ok(lista);
     }
     
 }
