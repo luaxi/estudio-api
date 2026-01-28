@@ -29,24 +29,32 @@ public class SalaController {
 
     @PostMapping("/")
     public ResponseEntity<SalaResponseDTO> criar(@Valid @RequestBody SalaRequestDTO dto) {
+        Sala sala = service.criar(dto);
         return ResponseEntity
             .status(HttpStatus.CREATED)
-            .body(service.criar(dto));
+            .body(new SalaResponseDTO(sala));
     }
     
     @GetMapping("/")
     public ResponseEntity<List<SalaResponseDTO>> listar() {
-        return ResponseEntity.ok(service.listar());
+        List<SalaResponseDTO> lista = service.listar()
+            .stream()
+            .map(sala -> new SalaResponseDTO(sala))
+            .toList();
+
+        return ResponseEntity.ok(lista);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<SalaResponseDTO> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(service.buscarPorId(id));
+        Sala sala = service.buscarPorId(id);
+        return ResponseEntity.ok(new SalaResponseDTO(sala));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<SalaResponseDTO> atualizar(@PathVariable Long id, @RequestBody SalaRequestDTO dto) {
-        return ResponseEntity.ok(service.atualizar(id, dto));
+        Sala sala = service.atualizar(id, dto);
+        return ResponseEntity.ok(new SalaResponseDTO(sala));
     }
     
     @DeleteMapping("/{id}")
