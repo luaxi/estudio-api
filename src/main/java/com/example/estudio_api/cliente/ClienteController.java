@@ -28,24 +28,31 @@ public class ClienteController {
 
     @PostMapping("/")
     public ResponseEntity<ClienteResponseDTO> criar(@Valid @RequestBody ClienteRequestDTO dto) {
+        Cliente cliente = service.criar(dto);
         return ResponseEntity
             .status(HttpStatus.CREATED)
-            .body(service.criar(dto));
+            .body(new ClienteResponseDTO(cliente));
     }
 
     @GetMapping("/")
     public ResponseEntity<List<ClienteResponseDTO>> listar() {
-        return ResponseEntity.ok(service.listar());
+        List<ClienteResponseDTO> lista = service.listar()
+            .stream()
+            .map(cliente -> new ClienteResponseDTO(cliente))
+            .toList();
+        return ResponseEntity.ok(lista);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ClienteResponseDTO> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(service.buscarPorId(id));
+        Cliente cliente = service.buscarPorId(id);
+        return ResponseEntity.ok(new ClienteResponseDTO(cliente));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ClienteResponseDTO> atualizar(@PathVariable Long id, @Valid @RequestBody ClienteRequestDTO dto) {
-        return ResponseEntity.ok(service.atualizar(id, dto));
+        Cliente cliente = service.atualizar(id, dto);
+        return ResponseEntity.ok(new ClienteResponseDTO(cliente));
     }
     
     @DeleteMapping("/{id}")
@@ -54,5 +61,4 @@ public class ClienteController {
         return ResponseEntity.noContent().build();
     }
     
-
 }

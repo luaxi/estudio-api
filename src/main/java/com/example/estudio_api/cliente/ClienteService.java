@@ -16,32 +16,25 @@ public class ClienteService {
     
     public final ClienteRepository repository;
 
-    public ClienteResponseDTO criar(ClienteRequestDTO dto){
+    public Cliente criar(ClienteRequestDTO dto){
         Cliente cliente = Cliente.builder()
             .nome(dto.nome())
             .telefone(dto.telefone())
             .build();
         
-        repository.save(cliente);
-
-        return new ClienteResponseDTO(cliente.getId(), cliente.getNome(), cliente.getTelefone());
+        return repository.save(cliente);
     }
 
-    public List<ClienteResponseDTO> listar(){
-        return repository.findAll()
-            .stream()
-            .map(c -> new ClienteResponseDTO(c.getId(), c.getNome(), c.getTelefone()))
-            .toList();
+    public List<Cliente> listar(){
+        return repository.findAll();
     }
 
-    public ClienteResponseDTO buscarPorId(Long id){
-        Cliente cliente = repository.findById(id)
+    public Cliente buscarPorId(Long id){
+        return repository.findById(id)
             .orElseThrow(() -> new NotFoundException("Cliente não encontrado!"));
-        
-        return new ClienteResponseDTO(cliente.getId(), cliente.getNome(), cliente.getTelefone());
     }
 
-    public ClienteResponseDTO atualizar(Long id, ClienteRequestDTO dto){
+    public Cliente atualizar(Long id, ClienteRequestDTO dto){
         
         Cliente cliente = repository.findById(id)
             .orElseThrow(() -> new NotFoundException("Cliente não encontrado!"));
@@ -49,9 +42,7 @@ public class ClienteService {
         cliente.setNome(dto.nome());
         cliente.setTelefone(dto.telefone());
 
-        repository.save(cliente);
-
-        return new ClienteResponseDTO(cliente.getId(), cliente.getNome(), cliente.getTelefone());
+        return repository.save(cliente);
     }
 
     public void deletar(Long id){
