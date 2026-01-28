@@ -73,6 +73,25 @@ public class ApiExceptionHandler {
     }
 
     /**
+     * Trata exceção InvalidFieldException (400 Bad Request)
+     */
+    @ExceptionHandler(CampoInvalidoException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidFieldException(
+            CampoInvalidoException ex,
+            WebRequest request) {
+        
+        ErrorResponse errorResponse = ErrorResponse.builder()
+            .timestamp(LocalDateTime.now())
+            .status(HttpStatus.BAD_REQUEST.value())
+            .error("Campo Inválido")
+            .message(ex.getMessage())
+            .path(request.getDescription(false).replace("uri=", ""))
+            .build();
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
      * Trata exceção MethodArgumentNotValidException (400 Bad Request)
      * Lançada pela validação de @Valid em DTO
      */
