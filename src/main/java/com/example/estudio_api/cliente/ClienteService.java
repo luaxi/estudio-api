@@ -41,7 +41,7 @@ public class ClienteService {
         return new ClienteResponseDTO(cliente.getId(), cliente.getNome(), cliente.getTelefone());
     }
 
-    public ClienteResponseDTO editar(Long id, ClienteRequestDTO dto){
+    public ClienteResponseDTO atualizar(Long id, ClienteRequestDTO dto){
         
         Cliente cliente = repository.findById(id)
             .orElseThrow(() -> new NotFoundException("Cliente não encontrado!"));

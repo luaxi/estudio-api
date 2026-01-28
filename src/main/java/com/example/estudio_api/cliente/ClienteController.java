@@ -16,13 +16,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-
-
-
-
 
 @RestController
 @RequestMapping("/clientes")
@@ -49,8 +44,8 @@ public class ClienteController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ClienteResponseDTO> editar(@PathVariable Long id, @Valid @RequestBody ClienteRequestDTO dto) {
-        return ResponseEntity.ok(service.editar(id, dto));
+    public ResponseEntity<ClienteResponseDTO> atualizar(@PathVariable Long id, @Valid @RequestBody ClienteRequestDTO dto) {
+        return ResponseEntity.ok(service.atualizar(id, dto));
     }
     
     @DeleteMapping("/{id}")
