@@ -54,6 +54,25 @@ public class ApiExceptionHandler {
     }
 
     /**
+     * Trata exceção SalaComReservaAtivaException (409 Conflict)
+     */
+    @ExceptionHandler(SalaComReservaAtivaException.class)
+    public ResponseEntity<ErrorResponse> handleSalaComReservaAtivaException(
+            SalaComReservaAtivaException ex,
+            WebRequest request) {
+        
+        ErrorResponse errorResponse = ErrorResponse.builder()
+            .timestamp(LocalDateTime.now())
+            .status(HttpStatus.CONFLICT.value())
+            .error("Conflito")
+            .message(ex.getMessage())
+            .path(request.getDescription(false).replace("uri=", ""))
+            .build();
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    }
+
+    /**
      * Trata exceção HorarioInvalidoException (400 Bad Request)
      */
     @ExceptionHandler(HorarioInvalidoException.class)

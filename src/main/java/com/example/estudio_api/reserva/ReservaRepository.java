@@ -34,4 +34,5 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
     """)
     List<Reserva> findPassadasByClienteId(Long clienteId);
 
+    boolean existsBySalaIdAndDataFimAfter(Long salaId, LocalDateTime now);
 }

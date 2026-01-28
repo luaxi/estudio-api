@@ -11,7 +11,7 @@ import com.example.estudio_api.cliente.Cliente;
 import com.example.estudio_api.cliente.ClienteService;
 import com.example.estudio_api.reserva.dto.ReservaRequestDTO;
 import com.example.estudio_api.sala.Sala;
-import com.example.estudio_api.sala.SalaService;
+import com.example.estudio_api.sala.SalaRepository;
 import com.example.estudio_api.shared.errors.HorarioInvalidoException;
 import com.example.estudio_api.shared.errors.NotFoundException;
 
@@ -23,14 +23,15 @@ public class ReservaService {
     
     private final ReservaRepository repository;
     private final ClienteService clienteService;
-    private final SalaService salaService;
+    private final SalaRepository salaRepository;
 
     public Reserva criar(ReservaRequestDTO dto){
         // Busca e verifica se o cliente existe
         Cliente cliente = clienteService.buscarPorId(dto.clienteId());
 
         // Busca e verifica se a sala existe
-        Sala sala = salaService.buscarPorId(dto.salaId());
+        Sala sala = salaRepository.findById(dto.salaId())
+            .orElseThrow(() -> new NotFoundException("Sala não encontrada!"));
 
         // Valida os horários da reserva
         validarHorarios(dto);
@@ -72,7 +73,8 @@ public class ReservaService {
         Cliente cliente = clienteService.buscarPorId(dto.clienteId());
 
         // Busca e verifica se a sala existe
-        Sala sala = salaService.buscarPorId(dto.salaId());
+        Sala sala = salaRepository.findById(dto.salaId())
+            .orElseThrow(() -> new NotFoundException("Sala não encontrada!"));
 
         // Valida os horários da reserva
         validarHorarios(dto);
@@ -131,6 +133,10 @@ public class ReservaService {
         }
 
         repository.deleteById(id);
+    }
+
+    public boolean existeReservaAtivaNaSala(Long salaId){
+        return repository.existsBySalaIdAndDataFimAfter(salaId, LocalDateTime.now());
     }
 
     private void verificaConflitos(ReservaRequestDTO dto) {

@@ -7,16 +7,20 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 
 import com.example.estudio_api.equipamento.EquipamentoService;
+import com.example.estudio_api.reserva.ReservaService;
 import com.example.estudio_api.sala.dto.SalaRequestDTO;
 import com.example.estudio_api.shared.errors.CampoInvalidoException;
 import com.example.estudio_api.shared.errors.NotFoundException;
 import com.example.estudio_api.shared.errors.SalaComEquipamentosException;
+import com.example.estudio_api.shared.errors.SalaComReservaAtivaException;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class SalaService {
+
+    private final ReservaService reservaService;
     
     private final SalaRepository repository;
     private final EquipamentoService equipamentoService;
@@ -89,6 +93,10 @@ public class SalaService {
         // Verifica se existem equipamentos vinculados à sala
         if(equipamentoService.existeEquipamentoNaSala(id)){
             throw new SalaComEquipamentosException("A sala ainda possui equipamentos vinculados!");
+        }
+
+        if(reservaService.existeReservaAtivaNaSala(id)){
+            throw new SalaComReservaAtivaException("A sala ainda possui reservas ativas vinculadas!");
         }
 
         repository.deleteById(id);
