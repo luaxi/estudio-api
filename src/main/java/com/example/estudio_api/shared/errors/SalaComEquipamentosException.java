@@ -1,4 +1,4 @@
-package com.example.estudio_api.exceptions;
+package com.example.estudio_api.shared.errors;
 
 public class SalaComEquipamentosException extends RuntimeException {
     

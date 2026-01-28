@@ -4,9 +4,9 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.example.estudio_api.exceptions.NotFoundException;
 import com.example.estudio_api.cliente.dto.ClienteRequestDTO;
 import com.example.estudio_api.cliente.dto.ClienteResponseDTO;
+import com.example.estudio_api.shared.errors.NotFoundException;
 
 import lombok.RequiredArgsConstructor;
 

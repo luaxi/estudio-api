@@ -5,9 +5,9 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.example.estudio_api.equipamento.EquipamentoService;
-import com.example.estudio_api.exceptions.NotFoundException;
-import com.example.estudio_api.exceptions.SalaComEquipamentosException;
 import com.example.estudio_api.sala.dto.SalaRequestDTO;
+import com.example.estudio_api.shared.errors.NotFoundException;
+import com.example.estudio_api.shared.errors.SalaComEquipamentosException;
 
 import lombok.RequiredArgsConstructor;
 

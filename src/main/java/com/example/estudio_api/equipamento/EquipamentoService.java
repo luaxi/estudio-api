@@ -4,10 +4,10 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.example.estudio_api.exceptions.NotFoundException;
 import com.example.estudio_api.equipamento.dto.EquipamentoRequestDTO;
 import com.example.estudio_api.sala.Sala;
 import com.example.estudio_api.sala.SalaRepository;
+import com.example.estudio_api.shared.errors.NotFoundException;
 
 import lombok.RequiredArgsConstructor;
 
