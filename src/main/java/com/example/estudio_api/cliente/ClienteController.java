@@ -3,6 +3,7 @@ package com.example.estudio_api.cliente;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -56,6 +57,12 @@ public class ClienteController {
     @PutMapping("/{id}")
     public ResponseEntity<ClienteResponseDTO> atualizar(@PathVariable Long id, @Valid @RequestBody ClienteRequestDTO dto) {
         Cliente cliente = service.atualizar(id, dto);
+        return ResponseEntity.ok(new ClienteResponseDTO(cliente));
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<ClienteResponseDTO> atualizarParcial(@PathVariable Long id, @RequestBody Map<String, Object> updates) {
+        Cliente cliente = service.atualizarParcial(id, updates);
         return ResponseEntity.ok(new ClienteResponseDTO(cliente));
     }
     
