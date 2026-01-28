@@ -4,7 +4,9 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.example.estudio_api.NotFoundException;
+import com.example.estudio_api.equipamento.EquipamentoService;
+import com.example.estudio_api.exceptions.NotFoundException;
+import com.example.estudio_api.exceptions.SalaComEquipamentosException;
 import com.example.estudio_api.sala.dto.SalaRequestDTO;
 
 import lombok.RequiredArgsConstructor;
@@ -12,8 +14,9 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class SalaService {
-
+    
     private final SalaRepository repository;
+    private final EquipamentoService equipamentoService;
 
     public Sala criar(SalaRequestDTO dto){
         Sala sala = Sala.builder()
@@ -47,12 +50,13 @@ public class SalaService {
         if(!repository.existsById(id)){
             throw new NotFoundException("Sala não encontrada!");
         }
+        
+        // Verifica se existem equipamentos vinculados à sala
+        if(equipamentoService.existeEquipamentoNaSala(id)){
+            throw new SalaComEquipamentosException("A sala ainda possui equipamentos vinculados!");
+        }
 
         repository.deleteById(id);
-    }
-
-    public boolean existeSala(Long id){
-        return repository.existsById(id);
     }
     
 }

@@ -1,4 +1,4 @@
-package com.example.estudio_api;
+package com.example.estudio_api.exceptions;
 
 public class NotFoundException extends RuntimeException {
     

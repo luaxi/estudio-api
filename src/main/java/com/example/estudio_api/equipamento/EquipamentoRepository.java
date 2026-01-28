@@ -8,4 +8,6 @@ public interface EquipamentoRepository extends JpaRepository<Equipamento, Long> 
     
     List<Equipamento> findBySalaId(Long salaId);
 
+    boolean existsBySalaId(Long id);
+
 }

@@ -4,10 +4,10 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.example.estudio_api.NotFoundException;
+import com.example.estudio_api.exceptions.NotFoundException;
 import com.example.estudio_api.equipamento.dto.EquipamentoRequestDTO;
 import com.example.estudio_api.sala.Sala;
-import com.example.estudio_api.sala.SalaService;
+import com.example.estudio_api.sala.SalaRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -16,10 +16,11 @@ import lombok.RequiredArgsConstructor;
 public class EquipamentoService {
     
     private final EquipamentoRepository repository;
-    private final SalaService salaService;
+    private final SalaRepository salaRepository;
 
     public Equipamento criar(EquipamentoRequestDTO dto){
-        Sala sala = salaService.buscarPorId(dto.salaId());
+        Sala sala = salaRepository.findById(dto.salaId())
+            .orElseThrow(() -> new NotFoundException("Sala não encontrada!"));
 
         Equipamento equipamento = Equipamento.builder()
             .nome(dto.nome())
@@ -35,7 +36,7 @@ public class EquipamentoService {
     }
 
     public List<Equipamento> listarPorSala(Long salaId){
-        if(!salaService.existeSala(salaId)){
+        if(!salaRepository.existsById(salaId)){
             throw new NotFoundException("Sala não encontrada!");
         }
         return repository.findBySalaId(salaId);
@@ -50,10 +51,11 @@ public class EquipamentoService {
         Equipamento equipamento = repository.findById(id)
             .orElseThrow(() -> new NotFoundException("Equipamento não encontrado!"));
         
-        Sala sala = salaService.buscarPorId(dto.salaId());
+        Sala sala = salaRepository.findById(dto.salaId())
+            .orElseThrow(() -> new NotFoundException("Sala não encontrada!"));
         
         equipamento.setNome(dto.nome());
-        equipamento.setTipo(equipamento.getTipo());
+        equipamento.setTipo(dto.tipo());
         equipamento.setSala(sala);
 
         return repository.save(equipamento);
@@ -65,6 +67,10 @@ public class EquipamentoService {
         }
 
         repository.deleteById(id);
+    }
+
+    public boolean existeEquipamentoNaSala(Long salaId){
+        return repository.existsBySalaId(salaId);
     }
     
 }
