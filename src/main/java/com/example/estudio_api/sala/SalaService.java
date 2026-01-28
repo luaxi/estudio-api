@@ -60,5 +60,9 @@ public class SalaService {
 
         repository.deleteById(id);
     }
+
+    public boolean existeSala(Long salaId){
+        return repository.existsById(salaId);
+    }
     
 }

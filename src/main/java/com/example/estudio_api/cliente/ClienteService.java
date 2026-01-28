@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.example.estudio_api.cliente.dto.ClienteRequestDTO;
-import com.example.estudio_api.cliente.dto.ClienteResponseDTO;
 import com.example.estudio_api.shared.errors.NotFoundException;
 
 import lombok.RequiredArgsConstructor;
@@ -53,6 +52,10 @@ public class ClienteService {
         }
         
         repository.deleteById(id);
+    }
+
+    public boolean existeCliente(Long clienteId){
+        return repository.existsById(clienteId);
     }
 
 }

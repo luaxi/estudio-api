@@ -3,6 +3,7 @@ package com.example.estudio_api.reserva;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 
@@ -12,6 +13,7 @@ import com.example.estudio_api.reserva.dto.ReservaRequestDTO;
 import com.example.estudio_api.sala.Sala;
 import com.example.estudio_api.sala.SalaService;
 import com.example.estudio_api.shared.errors.HorarioInvalidoException;
+import com.example.estudio_api.shared.errors.NotFoundException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -53,6 +55,82 @@ public class ReservaService {
             .build();
 
         return repository.save(reserva);
+    }
+
+    public Reserva buscarPorId(Long id){
+        return repository.findById(id)
+            .orElseThrow(() -> new NotFoundException("Reserva não encontrada!"));
+    }
+
+    public Reserva atualizar(Long id, ReservaRequestDTO dto){
+
+        // Busca e verifica se a reserva existe
+        Reserva reserva = repository.findById(id)
+            .orElseThrow(() -> new NotFoundException("Reserva não encontrada!"));
+
+        // Busca e verifica se o cliente existe
+        Cliente cliente = clienteService.buscarPorId(dto.clienteId());
+
+        // Busca e verifica se a sala existe
+        Sala sala = salaService.buscarPorId(dto.salaId());
+
+        // Valida os horários da reserva
+        validarHorarios(dto);
+
+        // Verifica conflitos de horário
+        verificaConflitos(dto);
+
+        // Calcula a quantidade de horas reservadas
+        var horasReservadas = dto.dataFim().getHour() - dto.dataInicio().getHour();
+        
+        // Calcula o valor total da reserva
+        BigDecimal valorTotal = sala.getPrecoPorHora()
+            .multiply(BigDecimal.valueOf(horasReservadas));
+
+        // Atualiza a reserva
+        reserva.setCliente(cliente);
+        reserva.setSala(sala);
+        reserva.setDataInicio(dto.dataInicio());
+        reserva.setDataFim(dto.dataFim());
+        reserva.setValorTotal(valorTotal);
+
+        return repository.save(reserva);
+    }
+
+    public List<Reserva> listar(){
+        return repository.findAll();
+    }
+
+    public List<Reserva> listarPorSala(Long salaId){
+        
+        // Verifica se a sala existe
+        // if(!salaService.existeSala(salaId)){
+        //     throw new NotFoundException("Sala não encontrada!");
+        // }
+
+        return repository.findBySalaId(salaId);
+    }
+
+    public List<Reserva> listarPorCliente(Long clienteId){
+        return repository.findByClienteId(clienteId);
+    }
+
+    public List<Reserva> listarAtivasPorCliente(Long clienteId){
+        return repository.findAtivasByClienteId(clienteId);
+    }
+
+    public List<Reserva> listarPassadasPorCliente(Long clienteId){
+        return repository.findPassadasByClienteId(clienteId);
+    }
+
+    public void deletar(Long id){
+
+        // Verifica se a reserva existe
+        if(!repository.existsById(id)){
+            throw new NotFoundException("Reserva não encontrada!");
+        }
+
+        repository.deleteById(id);
     }
 
     private void verificaConflitos(ReservaRequestDTO dto) {

@@ -16,4 +16,22 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
     """)
     List<Reserva> findConflitos(Long salaId, LocalDateTime dataInicio, LocalDateTime dataFim);
 
+    List<Reserva> findBySalaId(Long id);
+
+    List<Reserva> findByClienteId(Long id);
+
+    @Query("""
+        SELECT r FROM Reserva r
+        WHERE r.cliente.id = :clienteId
+          AND r.dataFim >= CURRENT_TIMESTAMP
+    """)
+    List<Reserva> findAtivasByClienteId(Long clienteId);
+
+    @Query("""
+        SELECT r FROM Reserva r
+        WHERE r.cliente.id = :clienteId
+          AND r.dataFim < CURRENT_TIMESTAMP
+    """)
+    List<Reserva> findPassadasByClienteId(Long clienteId);
+
 }
