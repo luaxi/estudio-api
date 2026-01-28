@@ -7,11 +7,10 @@ import java.time.LocalTime;
 import org.springframework.stereotype.Service;
 
 import com.example.estudio_api.cliente.Cliente;
-import com.example.estudio_api.cliente.ClienteRepository;
 import com.example.estudio_api.cliente.ClienteService;
 import com.example.estudio_api.reserva.dto.ReservaRequestDTO;
 import com.example.estudio_api.sala.Sala;
-import com.example.estudio_api.sala.SalaRepository;
+import com.example.estudio_api.sala.SalaService;
 import com.example.estudio_api.shared.errors.HorarioInvalidoException;
 
 import lombok.RequiredArgsConstructor;
@@ -22,15 +21,14 @@ public class ReservaService {
     
     private final ReservaRepository repository;
     private final ClienteService clienteService;
-    private final SalaRepository salaRepository;
+    private final SalaService salaService;
 
     public Reserva criar(ReservaRequestDTO dto){
         // Busca e verifica se o cliente existe
         Cliente cliente = clienteService.buscarPorId(dto.clienteId());
 
         // Busca e verifica se a sala existe
-        Sala sala = salaRepository.findById(dto.salaId())
-            .orElseThrow(() -> new RuntimeException("Sala não encontrada"));
+        Sala sala = salaService.buscarPorId(dto.salaId());
 
         // Valida os horários da reserva
         validarHorarios(dto);
