@@ -57,7 +57,7 @@ O sistema oferece:
 
 ## 5. Justificativa das decisões arquiteturais
 
-A arquitetura monolítica foi pensada de acordo com o escopo das problemáticas dos pequenos estúdios de música, que não exigem grande escalabilidade ou balanceamento de carga.
+A arquitetura monolítica foi pensada de acordo com o escopo das problemáticas dos pequenos estúdios de música, que não exigem grande escalabilidade, permitindo uma solução simples, coesa e fácil de manter, sem a complexidade adicional de um ecossistema distribuído.
 
 O sistema está organizado em módulos, cada um com suas responsabilidades, para facilitar uma futura migração para SOA ou Microsserviços.
 
