@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
-@RequestMapping("/clientes")
+@RequestMapping("/cliente")
 @RequiredArgsConstructor
 public class ClienteController {
 
