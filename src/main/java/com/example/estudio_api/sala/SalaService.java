@@ -47,6 +47,8 @@ public class SalaService {
     }
 
     public void deletar(Long id){
+
+        // Verifica se a sala existe
         if(!repository.existsById(id)){
             throw new NotFoundException("Sala não encontrada!");
         }

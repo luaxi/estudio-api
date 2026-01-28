@@ -56,6 +56,7 @@ public class ClienteService {
 
     public void deletar(Long id){
         
+        // Verifica se o cliente existe
         if(!repository.existsById(id)){
             throw new NotFoundException("Cliente não encontrado!");
         }

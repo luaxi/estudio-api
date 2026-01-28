@@ -19,9 +19,12 @@ public class EquipamentoService {
     private final SalaRepository salaRepository;
 
     public Equipamento criar(EquipamentoRequestDTO dto){
+
+        // Busca e verifica se a sala existe
         Sala sala = salaRepository.findById(dto.salaId())
             .orElseThrow(() -> new NotFoundException("Sala não encontrada!"));
 
+        // Cria o equipamento
         Equipamento equipamento = Equipamento.builder()
             .nome(dto.nome())
             .tipo(dto.tipo())
@@ -36,9 +39,12 @@ public class EquipamentoService {
     }
 
     public List<Equipamento> listarPorSala(Long salaId){
+        
+        // Verifica se a sala existe
         if(!salaRepository.existsById(salaId)){
             throw new NotFoundException("Sala não encontrada!");
         }
+
         return repository.findBySalaId(salaId);
     }
 
@@ -48,9 +54,12 @@ public class EquipamentoService {
     }
 
     public Equipamento atualizar(Long id, EquipamentoRequestDTO dto){
+        
+        // Busca e verifica se o equipamento existe
         Equipamento equipamento = repository.findById(id)
             .orElseThrow(() -> new NotFoundException("Equipamento não encontrado!"));
         
+        // Busca e verifica se a sala existe
         Sala sala = salaRepository.findById(dto.salaId())
             .orElseThrow(() -> new NotFoundException("Sala não encontrada!"));
         
@@ -62,6 +71,8 @@ public class EquipamentoService {
     }
 
     public void deletar(Long id){
+
+        // Verifica se o equipamento existe
         if(!repository.existsById(id)){
             throw new NotFoundException("Equipamento não encontrado!");
         }
