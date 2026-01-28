@@ -1,7 +1,7 @@
 # Estudio API
 
 ## 1. Descrição do problema
-O sistema pretende resolver o problema de gerenciamento de reservas para pequeno estúdios de música. Isso também envolve gerenciar salas, equipamentos e clientes, facilitando as validações necessárias para evitar conflitos e automatizando o cálculo do preço de agendamento.
+O sistema pretende resolver o problema de gerenciamento de reservas para pequenos estúdios de música. Isso também envolve gerenciar salas, equipamentos e clientes, facilitando as validações necessárias para evitar conflitos e automatizando o cálculo do preço de agendamento.
 
 ## 2. Objetivo do sistema
 O sistema oferece:
