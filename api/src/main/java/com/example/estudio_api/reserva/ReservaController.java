@@ -28,7 +28,7 @@ public class ReservaController {
     
     private final ReservaService service;
 
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<ReservaResponseDTO> criar(@RequestBody ReservaRequestDTO dto) {
         Reserva reserva = service.criar(dto);
         return ResponseEntity
@@ -36,7 +36,7 @@ public class ReservaController {
             .body(new ReservaResponseDTO(reserva));
     }
     
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<List<ReservaResponseDTO>> listar() {
         List<ReservaResponseDTO> lista = service.listar()
             .stream()

@@ -31,7 +31,7 @@ public class ClienteController {
     private final ClienteService service;
     private final ReservaService reservaService;
 
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<ClienteResponseDTO> criar(@Valid @RequestBody ClienteRequestDTO dto) {
         Cliente cliente = service.criar(dto);
         return ResponseEntity
@@ -39,7 +39,7 @@ public class ClienteController {
             .body(new ClienteResponseDTO(cliente));
     }
 
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<List<ClienteResponseDTO>> listar() {
         List<ClienteResponseDTO> lista = service.listar()
             .stream()

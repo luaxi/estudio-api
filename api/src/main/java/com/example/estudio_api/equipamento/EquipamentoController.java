@@ -28,7 +28,7 @@ public class EquipamentoController {
     
     private final EquipamentoService service;
 
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<EquipamentoResponseDTO> criar(@Valid @RequestBody EquipamentoRequestDTO dto) {
         Equipamento equipamento = service.criar(dto);
         return ResponseEntity
@@ -36,7 +36,7 @@ public class EquipamentoController {
             .body(new EquipamentoResponseDTO(equipamento));
     }
     
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<List<EquipamentoResponseDTO>> listar() {
         List<EquipamentoResponseDTO> lista = service.listar()
             .stream()

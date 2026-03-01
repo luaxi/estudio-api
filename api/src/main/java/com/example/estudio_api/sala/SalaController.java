@@ -32,7 +32,7 @@ public class SalaController {
     private final SalaService service;
     private final EquipamentoService equipamentoService;
 
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<SalaResponseDTO> criar(@Valid @RequestBody SalaRequestDTO dto) {
         Sala sala = service.criar(dto);
         return ResponseEntity
@@ -40,7 +40,7 @@ public class SalaController {
             .body(new SalaResponseDTO(sala));
     }
     
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<List<SalaResponseDTO>> listar() {
         List<SalaResponseDTO> lista = service.listar()
             .stream()
