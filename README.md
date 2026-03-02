@@ -33,8 +33,8 @@ O projeto utiliza uma arquitetura **monolítica containerizada** composta por tr
    │  • Basic Auth      (Swagger)           │
    │  • Security headers                    │
    └───────────────────┬────────────────────┘
-                        │  proxy_pass :8080
-                        ▼
+                       │  proxy_pass :8080
+                       ▼
    ┌────────────────────────────────────────┐
    │     Spring Boot API (monolítica)       │
    │          context-path: /api            │
