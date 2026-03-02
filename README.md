@@ -1,106 +1,183 @@
 # Estudio API
 
-## 1. Descrição do problema
-O sistema pretende resolver o problema de gerenciamento de reservas para pequenos estúdios de música. Isso também envolve gerenciar salas, equipamentos e clientes, facilitando as validações necessárias para evitar conflitos e automatizando o cálculo do preço de agendamento.
+API REST para gerenciamento de reservas de estúdios de música — cadastro de clientes, salas, equipamentos e agendamento de reservas.
 
-## 2. Objetivo do sistema
-O sistema oferece:
-- Cadastro de clientes, salas e equipamentos
-- Agendamento de reservas
-- Validações de regra de negócio
-    - Conflito de horários na mesma sala
-    - Restrições de horários e horários redondos
-    - Restrições para deletar salas
-    - Cálculo de preço por hora
-- Interface RESTful para consumo (Postman ou frontend a ser implementado)
+---
 
-## 3. Estilo arquitetural adotado
-> Arquitetura Monolítica
+## Arquitetura
 
-## 4. Diagrama simples da arquitetura (em ASCII)
+O projeto utiliza uma arquitetura **monolítica containerizada** composta por três camadas:
+
+| Camada | Tecnologia | Papel |
+|--------|-----------|-------|
+| **Reverse Proxy** | Nginx 1.25 (Alpine) | Ponto de entrada único na porta 80. Aplica rate limiting (5 req/s com burst de 10), cache de 10 s para GETs, compressão gzip, autenticação básica no Swagger e headers de segurança. |
+| **API** | Spring Boot 4.0.2 / Java 21 | Aplicação monolítica que expõe endpoints REST sob o context-path `/api`. Organizada em módulos (cliente, sala, equipamento, reserva), cada um com Controller → Service → Repository (Spring Data JPA). Documentação via SpringDoc/Swagger UI. |
+| **Banco de Dados** | H2 (in-memory) | Banco embarcado em memória (`jdbc:h2:mem:estudio-db`). Tabelas criadas automaticamente pelo Hibernate (`ddl-auto=create`) e populadas pelo `data.sql` na inicialização. |
+
+---
+
+## Diagrama da Arquitetura
 
 ```
-┌────────────────────────────────────────────────────────┐
-│           Cliente (Postman/Frontend)                   │
-└────────────────────────────────┬───────────────────────┘
-                                 │ HTTP REST
-                                 ↓
-┌────────────────────────────────────────────────────────┐
-│          Spring Boot API (Monolítica)                  │
-├────────────────────────────────────────────────────────┤
-│  ┌────────────┐  ┌─────────────┐  ┌───────────────┐    │
-│  │  Cliente   │  │ Equipamento │  │ ...outros     │    │
-│  │ Controller │  │ Controller  │  │ controllers...│    │
-│  └──────┬─────┘  └──────┬──────┘  └──────┬────────┘    │
-│         │               │                │             │
-│  ┌──────┴───────────────┴──┬────────────────────────┐  │
-│  │                         ↓                        │  │
-│  │  ┌─────────────────────────────────────────┐     │  │
-│  │  │             Services Layer              │     │  │
-│  │  │         (ClienteService, etc)           │     │  │
-│  │  └─────────────────────────────────────────┘     │  │
-│  │                      ↓                           │  │
-│  │  ┌─────────────────────────────────────────┐     │  │
-│  │  │          Repository Layer (JPA)         │     │  │
-│  │  │        (ClienteRepository, etc)         │     │  │
-│  │  └─────────────────────────────────────────┘     │  │
-│  │                      ↓                           │  │
-│  └──────────────────────┬───────────────────────────┘  │
-│                         │                              │
-├─────────────────────────┬──────────────────────────────┤
-│  ┌─────────────────────────────────────────────────┐   │
-│  │      Banco de Dados (H2)                        │   │
-│  │   (Cliente, Sala, Equipamento, Reserva)         │   │
-│  └─────────────────────────────────────────────────┘   │
-└────────────────────────────────────────────────────────┘
+            ┌───────────────────────┐
+            │   Cliente / Browser   │
+            └───────────┬───────────┘
+                        │  HTTP :80
+                        ▼
+   ┌────────────────────────────────────────┐
+   │          Nginx (reverse proxy)         │
+   │                                        │
+   │  • Rate limiting   (5 req/s burst=10)  │
+   │  • Cache GET 200   (TTL 10s)           │
+   │  • Gzip            (json/text)         │
+   │  • Basic Auth      (Swagger)           │
+   │  • Security headers                    │
+   └───────────────────┬────────────────────┘
+                        │  proxy_pass :8080
+                        ▼
+   ┌────────────────────────────────────────┐
+   │     Spring Boot API (monolítica)       │
+   │          context-path: /api            │
+   │                                        │
+   │  ┌──────────┐ ┌──────────┐ ┌─────────┐ │
+   │  │  Cliente │ │   Sala   │ │ Reserva │ │
+   │  │  module  │ │  module  │ │  module │ │
+   │  └────┬─────┘ └────┬─────┘ └────┬────┘ │
+   │       │            │            │      │
+   │       ▼            ▼            ▼      │
+   │  ┌─────────────────────────────────┐   │
+   │  │         Service Layer           │   │
+   │  └──────────────┬──────────────────┘   │
+   │                 │                      │
+   │  ┌──────────────▼──────────────────┐   │
+   │  │      Repository Layer (JPA)     │   │
+   │  └──────────────┬──────────────────┘   │
+   │                 │                      │
+   │  ┌──────────────▼──────────────────┐   │
+   │  │      H2 Database (in-memory)    │   │
+   │  └─────────────────────────────────┘   │
+   └────────────────────────────────────────┘
 ```
 
-## 5. Justificativa das decisões arquiteturais
+---
 
-A arquitetura monolítica foi pensada de acordo com o escopo das problemáticas dos pequenos estúdios de música, que não exigem grande escalabilidade, permitindo uma solução simples, coesa e fácil de manter, sem a complexidade adicional de um ecossistema distribuído.
-
-O sistema está organizado em módulos, cada um com suas responsabilidades, para facilitar uma futura migração para SOA ou Microsserviços.
-
-## 6. Instruções para execução do projeto
+## Passo a passo para execução
 
 ### Pré-requisitos
-- Java 21 ou superior
-- Maven 3.6 ou superior
+
 - Git
+- Docker
+- Docker Compose
 
-### Passos para executar
+> **Nota:** Não é necessário ter Java ou Maven instalados — o build é feito dentro do container via multi-stage Dockerfile.
 
-1. **Clone o repositório**
-   ```bash
-   git clone https://github.com/luaxi/estudio-api
-   cd estudio-api
-   ```
+### 1. Clonar o repositório
 
-2. **Compile o projeto**
-   ```bash
-   mvn clean install
-   ```
+```bash
+git clone https://github.com/luaxi/estudio-api.git
+cd estudio-api
+```
 
-3. **Execute a aplicação**
-   ```bash
-   mvn spring-boot:run
-   ```
+### 2. Criar o arquivo de credenciais do Swagger (Basic Auth)
 
-4. **Acesse a API**
-   - API disponível em: `http://localhost:8080`
-   - Console do banco H2: `http://localhost:8080/h2-console`
+O Nginx exige um arquivo `.htpasswd` para proteger o Swagger UI. Crie-o com `htpasswd` (do pacote `apache2-utils`) ou use um gerador online:
 
+```bash
+# Instalar htpasswd (se necessário)
+sudo apt install apache2-utils        # Debian/Ubuntu
+# ou
+brew install httpd                     # macOS
 
-### Estrutura de diretórios principais
+# Gerar o arquivo (substitua 'admin' pelo usuário desejado)
+htpasswd -c nginx/conf/.htpasswd admin
+```
 
-- `src/main/java/com/example/estudio_api/` - Código fonte da aplicação
-  - `cliente/` - Módulo de clientes
-  - `equipamento/` - Módulo de equipamentos
-  - `sala/` - Módulo de salas
-  - `reserva/` - Módulo de reservas
-  - `shared/errors/` - Tratamento de erros
-- `src/main/resources/` - Arquivos de configuração e dados iniciais
-- `src/test/` - Testes unitários
+### 3. Subir os containers
 
-## 7. Nome completo dos integrantes
-- Lua Schneider Pittelkow
+```bash
+docker compose up --build
+```
+
+Isso irá:
+
+1. **Build da API** — compilar o projeto Java 21 com Maven e gerar o JAR (multi-stage).
+2. **Nginx** — iniciar o reverse proxy na porta **80**, conectado à API na porta interna 8080.
+
+### 4. Verificar se está funcionando
+
+```bash
+# Health check do Nginx
+curl http://localhost/health
+
+# Health check da API (via proxy)
+curl http://localhost/api/health
+
+# Listar salas
+curl http://localhost/api/salas
+```
+
+### 5. Acessar o Swagger UI
+
+Abra no navegador:
+
+```
+http://localhost/api/swagger-ui
+```
+
+Será solicitado usuário e senha (os definidos no `.htpasswd`).
+
+### 6. Parar os containers
+
+```bash
+docker compose down
+```
+
+---
+
+## Como testar os requisitos
+
+### 1. Reverse Proxy
+- Confirmar que o Nginx está rodando na porta 80 em `http://localhost/health`.
+- Confirmar que a API está acessível via proxy em `http://localhost/api/health`.
+
+### 2. Headers de segurança
+- Fazer uma requisição GET e verificar os headers `X-Content-Type-Options`, `X-Frame-Options` e `X-XSS-Protection` na resposta.
+
+### 3. Rate Limiting
+- Disparar múltiplas requisições rápidas e verificar retorno HTTP 429.
+
+Exemplo:
+```bash
+for i in {1..20}; do curl -o /dev/null -s -w "%{http_code}\n" http://localhost/api/health; done
+```
+
+### 4. Limite de Payload
+- Tentar enviar um payload maior que 1 MB e verificar retorno HTTP 413.
+
+Exemplo:
+```bash
+curl -X POST http://localhost/api/cliente -H "Content-Type: application/json" -d @large_payload.json
+```
+
+### 5. Compressão
+- Fazer uma requisição GET e verificar se a resposta está comprimida (header `Content-Encoding: gzip`).
+
+### 6. Logs
+- Verificar os arquivos de logs do Nginx enquanto faz requisições, confirmando que os logs estão sendo gerados corretamente.
+
+Exemplo:
+```bash
+docker exec -it estudio-api-nginx-1 tail -f /var/log/nginx/api_access.log
+```
+### 7. Cache de GET
+- Fazer uma requisição GET e verificar que a resposta é cacheada (header `X-Cache-Status: HIT` ou `MISS`).
+
+### 8. Basic Auth no Swagger
+- Tentar acessar o Swagger UI sem autenticação e verificar que o acesso é negado.
+
+Exemplo:
+```bash
+curl http://localhost/api/swagger-ui
+```
+
+---
